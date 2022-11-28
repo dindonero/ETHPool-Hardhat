@@ -37,4 +37,4 @@ The improvement proposal can be found in the [EPIP-0001 file](EPIP-0001.md).
 
 ## Goerli deployment
 
-Contract deployed at: [Goerli Etherscan](https://goerli.etherscan.io/address/0xA5B03e89d6cC08ae286742075e7afAad756e64DF)
+Contract deployed at: [Goerli Etherscan](https://goerli.etherscan.io/address/0x1f237f7540f1f9f5ec11526becec3ba4504e5f16)
