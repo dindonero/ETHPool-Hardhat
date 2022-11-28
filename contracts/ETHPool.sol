@@ -79,7 +79,7 @@ contract ETHPool {
         balances[account] -= amount;
     }
 
-    fallback() external payable {
-        deposit();
+    receive() external payable {
+        depositReward();
     }
 }

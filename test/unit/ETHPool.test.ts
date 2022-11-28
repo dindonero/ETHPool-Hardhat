@@ -50,6 +50,7 @@ describe("ETHPool Unit Tests", function () {
         const txReceiptA = await (await ethPool.connect(userA).withdraw()).wait(1)
         const txReceiptB = await (await ethPool.connect(userB).withdraw()).wait(1)
 
+        // to calculate withdrawal amount, we take the gas cost into account
         const gasCostA = txReceiptA.cumulativeGasUsed.mul(txReceiptA.effectiveGasPrice)
         const gasCostB = txReceiptB.cumulativeGasUsed.mul(txReceiptB.effectiveGasPrice)
 
@@ -67,6 +68,40 @@ describe("ETHPool Unit Tests", function () {
     })
 
     it("challenge1 second example", async () => {
+        const amountA = ethers.utils.parseEther("100")
+        const amountB = ethers.utils.parseEther("300")
+        const rewardAmount = ethers.utils.parseEther("200")
 
+        // deposits 100 ETH from userA
+        await (await ethPool.connect(userA).deposit({ value: amountA })).wait(1)
+
+        // Team deposits 200 ETH in reward
+        await (await ethPool.connect(team).depositReward({ value: rewardAmount })).wait(1)
+
+        // deposits 300 ETH from userB
+        await (await ethPool.connect(userB).deposit({ value: amountB })).wait(1)
+
+        const userABalance = await ethers.provider.getBalance(await userA.getAddress())
+        const userBBalance = await ethers.provider.getBalance(await userB.getAddress())
+
+        // userA withdraws 300 ETH and userB withdraws 300 ETH
+        const txReceiptA = await (await ethPool.connect(userA).withdraw()).wait(1)
+        const txReceiptB = await (await ethPool.connect(userB).withdraw()).wait(1)
+
+        // to calculate withdrawal amount, we take the gas cost into account
+        const gasCostA = txReceiptA.cumulativeGasUsed.mul(txReceiptA.effectiveGasPrice)
+        const gasCostB = txReceiptB.cumulativeGasUsed.mul(txReceiptB.effectiveGasPrice)
+
+        const newUserABalance = await ethers.provider.getBalance(await userA.getAddress())
+        const newUserBBalance = await ethers.provider.getBalance(await userB.getAddress())
+
+        assert.equal(
+            newUserABalance.sub(userABalance).toString(),
+            ethers.utils.parseEther("300").sub(gasCostA).toString()
+        )
+        assert.equal(
+            newUserBBalance.sub(userBBalance).toString(),
+            ethers.utils.parseEther("300").sub(gasCostB).toString()
+        )
     })
 })
